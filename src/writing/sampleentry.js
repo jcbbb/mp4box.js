@@ -49,11 +49,15 @@ BoxParser.VisualSampleEntry.prototype.write = function(stream) {
 }
 
 BoxParser.AudioSampleEntry.prototype.write = function(stream) {
+  var channel_count = this.channel_count;
 	this.writeHeader(stream);
 	this.size += 2*4+3*4;
 	stream.writeUint32(0);
 	stream.writeUint32(0);
-	stream.writeUint16(this.channel_count);
+  if(this.type === 'Opus' && this.dOps && (this.dOps.CoupledCount + this.dOps.StreamCount) > channel_count) {
+    channel_count = this.dOps.CoupledCount + this.dOps.StreamCount;
+  }
+	stream.writeUint16(channel_count);
 	stream.writeUint16(this.samplesize);
 	stream.writeUint16(0);
 	stream.writeUint16(0);
